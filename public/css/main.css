@@ -1,0 +1,26 @@
+.color-white>a{
+
+    color: #fff !important;
+}
+
+a.navbar-brand {
+    background-color: #1f262d;
+}
+
+.auth-box.bg-dark.border-top.border-secondary.set-width {
+    max-width: 900px !important;
+}
+
+.bg-set-tb
+{
+    background: #1f262d !important;
+}
+
+.error {
+    color: red !important;
+}
+
+
+invalid-feedback-custom{
+    color: red !important;
+}
