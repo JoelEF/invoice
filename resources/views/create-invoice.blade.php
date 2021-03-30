@@ -43,12 +43,13 @@
                                         <div class="form-group row mt-4">
                                             <label for="serial" class="col-sm-2 text-center control-label col-form-label">{{__('message.invoice_no')}} :</label>
                                             <div class="col-sm-3">
-                                                <input type="number" class="form-control"  value="{{$invoiceno}}" id="invoice_no" name="invoice_no" readonly>
+                                                <input type="number" class="form-control"  value="{{$invoiceno}}" id="invoice_no" name="invoice_no" >
+
                                             </div>
 
                                             <label for="serial" class="col-sm-2 text-center control-label col-form-label">{{__('message.invoice_date')}} <small class="text-muted">dd/mm/yyyy</small></label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control date-inputmask mydatepicker" id="invoice_start_date" name="invoice_start_date" placeholder="Voeg de datum toe">
+                                                <input type="date" class="form-control date-inputmask " id="invoice_start_date" onclick="getdate()" name="invoice_start_date" placeholder="Voeg de datum toe" autocomplete="off">
                                             </div>
 
                                         </div>
@@ -82,7 +83,7 @@
 
                                             <label for="serial" class="col-sm-2 text-center control-label col-form-label mydatepicker">{{__('message.expiry_date')}} <small class="text-muted">dd/mm/yyyy</small></label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control date-inputmask mydatepicker" id="invoice_expiry_date" name="invoice_expiry_date" placeholder=" {{__('message.expiry_date')}}">
+                                                <input type="date" class="form-control date-inputmask " id="invoice_expiry_date" name="invoice_expiry_date" placeholder=" {{__('message.expiry_date')}}">
                                             </div>
 
                                         </div>
@@ -96,9 +97,11 @@
 
                                                     <th>{{__('message.service_date')}}</th>
                                                     <th>{{__('message.place_of_work')}}</th>
+                                                    <th>Pauze</th>
                                                     <th>{{__('message.start_time')}}</th>
                                                     <th>{{__('message.end_time')}}</th>
-                                                    <th>Pauze</th>
+
+                                                    <th>Total</th>
                                                     <th>{{__('message.p_hr')}}</th>
                                                     <th>{{__('message.total')}} </th>
 
@@ -109,13 +112,19 @@
                                                 <tbody><tr>
 
                                                     <td style="width: 15.333%;"> <div class="col-md-12">
-                                                            <input type="date"  name=service_Date[] class="form-control " id="service_Date" placeholder="dd/mm/yyyy" required>
+                                                            <input type="date"  name=service_Date[] class="form-control  " id="service_Date" placeholder="dd/mm/yyyy" required autocomplete="off">
                                                         </div>
                                                     </td>
 
 
                                                     <td style="width: 15.333%;"> <div class="col-md-12">
                                                             <input type="text"  name=pol[] class="form-control pol" id="pol" required>
+                                                        </div>
+                                                    </td>
+
+
+                                                    <td style="width: 15.333%;">  <div class="col-md-12">
+                                                            <input type="text"   name=break[] class="form-control break" id="break" required >
                                                         </div>
                                                     </td>
 
@@ -132,17 +141,31 @@
                                                     </td>
 
 
-                                                    <td style="width: 15.333%;">  <div class="col-md-12">
-                                                            <input type="text"   name=break[] class="form-control break" id="break" required>
+
+
+                                                    <td style="width: 15.333%;">
+                                                        <div class="col-md-12">
+                                                            <input type="text" name="wh[]"  class="form-control wh" id="wh" required />
                                                         </div>
                                                     </td>
 
-                                                    <input id="diff" hidden>
+                                                    <input id="diff" type="hidden">
+
+                                                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+{{--                                                    value--}}
+{{--                                                    <input type="text" name="gvalue" id="input" class="input" required/>Percentage--}}
+{{--                                                    <select name="percent" id="percent" class="input">--}}
+{{--                                                        <option value="Country" selected>Select Percentage</option>--}}
+{{--                                                        <option value="5">5</option>--}}
+{{--                                                        <option value="10">10</option>--}}
+{{--                                                        <option value="15">15</option>--}}
+{{--                                                    </select>--}}
+
+{{--                                                    Final Value--}}
 
 
-
-                                                    <td style="width: 15.333%;">  <div class="col-md-12">
-                                                            <input type="number"  name=pph[] class="form-control pph" id="pph" required>
+                                                    <td style="width: 15.333%;">  <div class="col-md-13">
+                                                            <input type="text" name=pph[] class="form-control pph" id="pph" required>
                                                         </div>
                                                     </td>
                                                     <td style="width: 55.333%;">  <div class="col-md-12">
@@ -207,15 +230,13 @@
                                             </div>
 
                                             <div class="form-group row pull-right text-right">
-                                                <label for="invoice_price" class="col-sm-2 text-center control-label col-form-label"><b>Total :</b></label>
+                                                <label for="tot_price" class="col-sm-2 text-center control-label col-form-label"><b>Total :</b></label>
+                
                                                 <div class="col-sm-3">
-                                                    <input type="text" class="invoice_price form-control "  id="invoice_price" name="invoice_price" required>
-                                                    @if($errors->has('invoice_price'))
-                                                        <span class="invalid-feedback-custom" role="alert">
-                                                                                                    <strong>{{$errors->first('invoice_price')}}</strong>
-                                                                                                </span>
-                                                    @endif
+                                                    <input type="text" class="tot_price form-control" value="0" name="tot_price" readonly/>
                                                 </div>
+                                            </div>
+
                                             </div>
                                         </div>
 

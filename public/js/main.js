@@ -16,8 +16,8 @@ $(document).ready(function() {
     // Setup - add a text input to each footer cell
     $('#zero_config thead th').each( function () {
         var title = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search by '+title+'" />' );
-    } );
+        $(this).html( '<input type="text" placeholder="Search by '+title+'" />');
+    });
 
     // DataTable
     var table = $('#zero_config').DataTable(
@@ -94,7 +94,7 @@ $('#add-customer-form').validate({
             required: "Please enter  KVK Number",
 
 
-        },
+        }
     }
 });
 
@@ -124,9 +124,14 @@ $(document).ready(function (e) {
                                                         </div>
                                                     </td>`;
 
+        html+=`   <td style="width: 15.333%;">  <div class="col-md-12">
+                                                            <input type="text"  name=break[] class="form-control break" id="break`+count+`" data-break="`+count+`" required>
+                                                        </div>
+                                                    </td>`;
+
         html +=` <td style="width: 15.333%;">  <div class="col-md-12">
                                                             <input type="text   "  name=st[] class=" stt form-control st" id="st`+count+`" data-st="`+count+`" required>
-                                                            
+
                                                         </div>
                                                     </td>`;
 
@@ -135,8 +140,10 @@ $(document).ready(function (e) {
                                                         </div>
                                                     </td>`;
 
-        html+=`   <td style="width: 15.333%;">  <div class="col-md-12">
-                                                            <input type="text"  name=break[] class="form-control break" id="break`+count+`" data-break="`+count+`" required>
+
+
+        html+=` <td style="width: 15.333%;">  <div class="col-md-12">
+                                                            <input type="text"  name=wh[] class="form-control wh" id="wh`+count+`"  data-wh="`+count+`" required >
                                                         </div>
                                                     </td>`;
 
@@ -194,7 +201,7 @@ function getdate() {
 
     var date = new Date(tt);
     var newdate = new Date(date);
-    var selectedDate = document.getElementById('cars').value;
+    var selectedDate = document.getElementById('invoice_start_date').value;
 
     console.log(selectedDate);
 
@@ -235,7 +242,7 @@ function calcrow() {
 
 
             //
-            $tblrow.find('.st , .et  , .pph , .invoice_tax , .break').on('change keyup', function () {
+            $tblrow.find('.st , .et  , .pph , .invoice_tax , .break, .wh, .tot_price').on('change keyup', function () {
 
 
                 //alert('ha');
@@ -260,8 +267,10 @@ function calcrow() {
 
 
 
-                var total_time=  document.getElementById("diff").value = diff(s_time, e_time);
+                var total_time =  document.getElementById("diff").value = diff(s_time, e_time);
                 // var total_time2 = s_time-e_time;
+
+                console.log(total_time);
 
                 function timeToDecimal(t) {
                     var arr = t.split(':');
@@ -277,7 +286,14 @@ function calcrow() {
 
                 var breakTime = $tblrow.find(".break").val()
 
-                console.log(calculate_time - breakTime);
+             console.log(calculate_time - breakTime);
+
+                // bind event handler to both input and select tag
+                $(".st,.et, .breakTime").keypress('change input', function() {
+                    var worked_time = parseFloat(calculate_time - breakTime)
+                    $tblrow.find(".wh").val(worked_time)
+                })
+
 
                 //row total
 
@@ -287,7 +303,7 @@ function calcrow() {
 
                 $tblrow.find('.tp').val(row_total.toFixed(2));
 
-                final();
+                // final();
 
                 if (!isNaN(row_total)) {
 
@@ -312,8 +328,56 @@ function calcrow() {
 
                     //  console.log("cinal"+final_price);
 
-                    final();
+                    // final();
                     //  $('.invoice_price').val(final_price.toFixed(2));
+                }
+
+                if (!isNaN(row_total)) {
+
+                    $tblrow.find('.tp').val(row_total.toFixed(2));
+                    var grandTotal = 0;
+
+                    $(".tp").each(function () {
+                        var stval = parseFloat($(this).val());
+                        grandTotal += isNaN(stval) ? 0 : stval;
+                    });
+
+                    console.log(grandTotal);
+
+                    $('.subtot').val(grandTotal.toFixed(2));
+                    // var tax = $('.invoice_tax').val();
+
+
+
+                    // var tax_price=grandTotal/100*tax;
+                    //
+                    // var final_price=tax_price+grandTotal;
+
+                    //  console.log("cinal"+final_price);
+
+                    // final();
+                    //  $('.invoice_price').val(final_price.toFixed(2));
+                }
+
+
+                //total price
+                var grandTotal2 = $('.subtot').val();
+                //  console.log('ha'+grandTotal);
+
+                var tax_price=grandTotal2/100*21;
+
+                console.log(tax_price)
+
+                $('.invoice_tax_price').val(parseFloat(tax_price));
+
+                var final_price=parseFloat(tax_price)  + parseFloat(grandTotal2);
+                if (!isNaN(final_price)) {
+
+                console.log(final_price);
+
+                $('.tot_price').val(final_price.toFixed(2));
+
+
                 }
             });
 
@@ -337,35 +401,45 @@ $(document).ready(function () {
 
 });
 
-function final() {
-
-    $( ".invoice_tax " ).on('change keyup',function() {
-
-        var tax= $(this).val();
-
-        console.log(tax);
-
-        var grandTotal= $('.subtot').val();
-        //  console.log('ha'+grandTotal);
-
-        var tax_price=grandTotal/100*tax;
-
-        $('.invoice_tax_price').val(parseFloat(tax_price));
-
-        var final_price=parseFloat(tax_price)  + parseFloat(grandTotal);
-
-        $('.invoice_price').val(Math.round( final_price * 100 ) / 100).toFixed(2);
 
 
+// $('table').on('mouseup keyup', 'input[type=number]', () => calculateTotals());
 
+// $('.btn-add-row').on('click', () => {
+//   const $lastRow = $('.item:last');
+//   const $newRow = $lastRow.clone();
 
-    });
+//   $newRow.find('input').val('');
+//   $newRow.find('td:last').text('$0.00');
+//   $newRow.insertAfter($lastRow);
 
-}
+//   $newRow.find('input:first').focus();
+// });
 
+// function calculateTotals() {
+//   const subtotals = $('.item').map((idx, val) => calculateSubtotal(val)).get();
+//   const total = subtotals.reduce((a, v) => a + Number(v), 0);
+//   $('.total td:eq(1)').text(formatAsCurrency(total));
+// }
+
+// function calculateSubtotal(row) {
+//   const $row = $(row);
+//   const inputs = $row.find('input');
+//   const subtotal = inputs[1].value * inputs[2].value;
+
+//   $row.find('td:last').text(formatAsCurrency(subtotal));
+
+//   return subtotal;
+// }
+
+// function formatAsCurrency(amount) {
+//   return `$${Number(amount).toFixed(2)}`;
+// }
 // var tax_price=grandTotal/100*tax;
 //
 // var final_price=tax_price+grandTotal;
+
+
 
 $('#invoiceform').validate({
     rules: {

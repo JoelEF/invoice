@@ -103,7 +103,7 @@
 <br /><br />
                     </pre>
                     <pre>
-{{__('message.invoice_date')}}: {{$invoice->invoice_date}} <br>
+{{__('message.invoice_date')}}: {{date('d/m/yy', strtotime($invoice->invoice_date))}} <br>
 {{__('message.expiry_date')}}: {{$invoice->expiry_date}} <br>
 {{--Status: @if($invoice->status == 1) <a class="status-green">Paid</a> @elseif($invoice->status == 0) <a class="status-red">Pending</a> @endif--}}
 </pre>
@@ -157,7 +157,7 @@ E- mail: rhniel@hotmail.com
         <tr>
             <td>{{$invoicechild->place_of_work}} <br>Uren {{$invoicechild->start_time}} - {{$invoicechild->end_time}}<br>{{date('d-m-yy', strtotime($invoicechild->service_date))}}</td>
 
-            <td>{{$hoursAsDecimal}}</td>
+            <td>{{$invoicechild->wh}}</td>
             <td>{{str_replace('.',',', $invoicechild->price_per_hour)}}</td>
             <td align="left">€ {{str_replace('.',',',$invoicechild->total)}}</td>
         </tr>
@@ -193,7 +193,7 @@ E- mail: rhniel@hotmail.com
         <tr>
             <td style="width: 70%; text-align: center;">
 {{--                &copy; {{ date('Y') }} Invoicing System - All rights reserved.--}}
-                We verzoeken u vriendelijk het bovenstaande bedrag van <div style="font-weight: bold;">€{{str_replace('.',',', $invoice->total)}}</div> uiterlijk {{date('d-m-yy', strtotime($invoice->expiry_date))}} te voldoen op IBAN-nummer NL80ABNA0428496814 onder vermelding van
+                We verzoeken u vriendelijk het bovenstaande bedrag van <div style="font-weight: bold;">€{{str_replace('.',',', $invoice->total)}}</div> uiterlijk {{$invoice->expiry_date}} te voldoen op IBAN-nummer NL19KNAB0602386829 onder vermelding van
                  <div style="font-weight: bold;">factuurnummer {{$invoice->invoice_number}}.</div> Voor vragen kunt u telefonisch of per email contact opnemen.
             </td>
 

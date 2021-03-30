@@ -85,11 +85,27 @@
 
                                                         <div class="col-md-6">
 
-                                                            <a class="btn btn-danger btn-sm" href="{{url('generate-pdf/'.$invoices->id)}}" data-toggle="tooltip" data-placement="top" title="Print">
+                                                            <a class="btn btn-danger btn-sm" href="{{route('invoice.generatePDF', $invoices->id)}}" data-toggle="tooltip" data-placement="top" title="Print">
                                                                 Print
                                                             </a>
                                                         </div>
 
+                                                    
+                                                        <div class="col-md-6">
+
+                                                            <a class="btn btn-danger btn-sm" href="{{route('invoice.editInvoice', $invoices->id)}}" data-toggle="tooltip" data-placement="top" title="Print">
+                                                                Edit
+                                                            </a>
+                                                        </div>
+                                                    
+                                                        <form action="{{ url('pending/invoice/'.$invoices->id) }}" method="POST">
+                                                            {{ csrf_field() }}
+                                                            {{ method_field('DELETE') }}
+
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fa fa-trash"></i> Delete
+                                                            </button>
+                                                        </form>
 
                                                     </div></td>
 

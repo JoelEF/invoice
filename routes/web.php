@@ -32,23 +32,30 @@ Route::get('/', function () {
     }
 });
 
-Route::get('/account-setting','HomeController@accountsetting')->name('account-setting');
-Route::post('/accountsettingupdate','HomeController@accountsettingupdate')->name('account-setting-update');
+Route::get('/account-setting','HomeController@accountsetting')->name('account-setting')->middleware('auth');
+Route::post('/accountsettingupdate','HomeController@accountsettingupdate')->name('account-setting-update')->middleware('auth');
 
-Route::get('/customers','CustomerController@viewCustomers')->name('view-customers');
-Route::post('/add-customer','CustomerController@addcustomer')->name('add-customer');
+Route::get('/customers','CustomerController@viewCustomers')->name('view-customers')->middleware('auth');
+Route::post('/add-customer','CustomerController@addcustomer')->name('add-customer')->middleware('auth');
 
 
 
-Route::get('/create/invoice','invoiceController@createInvoice')->name('create-invoice');
-Route::get('/edit/invoice/{id}','invoiceController@editInvoice')->name('edit-invoice');
-Route::patch('/edit/invoice/{id}','invoiceController@update');
-Route::post('/submit/invoice','invoiceController@submitInvoice')->name('submit-invoice');
-Route::get('/view/pending/invoice','invoiceController@viewpendingInvoices')->name('view-pending-invoices');
-Route::get('/view/approve/invoice','invoiceController@viewapprovedInvoices')->name('view-approved-invoices');
+Route::get('/create/invoice','InvoiceController@createInvoice')->name('create-invoice')->middleware('auth');
 
-Route::get('approve-invoice/{id}', ['as' => 'approve.invoice', 'uses' => 'invoiceController@approveinvoice']);
 
-Route::get('generate-pdf/{id}','invoiceController@generatePDF');
+Route::get('edit/invoice/{id}', ['as' => 'invoice.editInvoice', 'uses' => 'InvoiceController@editInvoice'])->middleware('auth');
+
+Route::patch('update/invoice/{id}', ['as' => 'invoice.update', 'uses' => 'InvoiceController@update'])->middleware('auth');
+
+Route::post('/submit/invoice','InvoiceController@submitInvoice')->name('submit-invoice')->middleware('auth');;
+Route::get('/view/pending/invoice','InvoiceController@viewpendingInvoices')->name('view-pending-invoices')->middleware('auth');
+Route::get('/view/approve/invoice','InvoiceController@viewapprovedInvoices')->name('view-approved-invoices')->middleware('auth');
+
+Route::get('approve-invoice/{id}', ['as' => 'approve.invoice', 'uses' => 'InvoiceController@approveinvoice'])->middleware('auth');
+ 
+Route::get('generate-pdf/{id}', ['as' => 'invoice.generatePDF', 'uses' => 'InvoiceController@generatePDF'])->middleware('auth');
+
+
+Route::delete('pending/invoice/{id}', ['uses' => 'InvoiceController@destroy', 'as' => 'invoice.delete']);
 
 

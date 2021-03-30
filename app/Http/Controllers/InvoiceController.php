@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 
 class InvoiceController extends Controller
 {
@@ -25,6 +28,7 @@ class InvoiceController extends Controller
 
         $in = new invoice();
         $last_invoice_id=$in->orderBy('id', 'DESC')->pluck('id')->first();
+        // $last_invoice_id = 26;
 
         $now = Carbon::now();
 
@@ -49,7 +53,7 @@ class InvoiceController extends Controller
 
         else
         {
-            $invoicenoc=sprintf("%03d", 1);
+            $invoicenoc=sprintf("%03d", 16);
 
             $year=sprintf("%02d", $now->weekOfYear);
             $invoiceno=$now->year.$year.$invoicenoc;
@@ -109,6 +113,7 @@ class InvoiceController extends Controller
                         'place_of_work' => $request['pol'][$i],
                         'start_time' => $request['st'][$i],
                         'end_time' => $request['et'][$i],
+                        'wh' => $request['wh'][$i],
                         'price_per_hour' => $request['pph'][$i],
                         'total' => $request['tp'][$i],
                     ];
@@ -177,35 +182,64 @@ class InvoiceController extends Controller
 
     public function editInvoice($id){
 
-        $invoicechildren = invoicechild::find($id);
+////        $invoicechildren = invoicechild::find($id);
+//        $invoice=invoice::where($id)
+//            ->join('invoicechildren', 'invoice.id', '=', 'invoicechildren.invoice_no');
+//        $customer = Customer::all();
+        
+        $invoice=invoice::findOrFail($id);
 
-        return view('edit-invoice', compact('invoicechildren'));
+        $invoicechildd=invoicechild::where('invoice_no',$invoice->id)->orderBy('service_date','asc')->get();
+        $customer=Customer::find($invoice->customer);
+
+        return view('edit-invoice', compact('invoice', 'invoicechildd', 'customer'));
     }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'invoice_no'=>'required',
-            'service_date'=> 'required|',
-            'place_of_work' => 'required|',
-            'start_time' => 'required|',
-            'end_time' => 'required|',
-            'price_per_hour' => 'required|',
-            'total' => 'required|',
+
+//    
+    
+    
+        public function update(Request $request, $id ) {
+            // $request->validate([
+            //     'invoice_no'=>'required',
+            //     'service_date'=> 'required',
+            //     'place_of_work' => 'required',
+            //     'start_time' => 'required',
+            //     'end_time' => 'required',
+            //     'worked_hours' => 'required',
+            //     'price_per_hour' => 'required',
+            //     'total' => 'required',
+            // ]);
+            $invoice=invoice::findOrFail($id);
+
+        $invoicechildd=invoicechild::where('invoice_no',$invoice->id)->orderBy('service_date','asc')->get();
+        // $invoice = invoicechild::findOrFail($invoice->id);
+        
+        invoice::where('id', $id)->update([
+            'sub_total' =>$request->subtot,
+            'total'=>$request->invoice_price,
+            'tax'=>$request->invoice_tax,
         ]);
+            foreach($invoicechildd as $key => $val){
+                invoicechild::where('id', $val->id)->update([
+                    'invoice_no' => $id,
+                    'service_date' => $request->service_Date[$key],
+                    'place_of_work' => $request->pol[$key],
+                    'start_time' => $request->st[$key],
+                    'end_time' => $request->et[$key],
+                    'wh' => round($request->wh[$key], 2),
+                    'price_per_hour' => $request->pph[$key],
+                    'total' => $request->tp[$key],
+                    
+       
 
-        $share = invoicechild::find($id);
-        $share->invoice_no = $request->get('invoice_no');
-        $share->service_date = $request->get('service_date');
-        $share->place_of_work = $request->get('place_of_work');
-        $share->start_time = $request->get('start_time');
-        $share->end_time = $request->get('end_time');
-        $share->price_per_hour = $request->get('price_per_hour');
-        $share->total = $request->get('total');
-        $share->save();
+                    ]);
+            }
+            
+            return redirect('view/pending/invoice');
 
-        return redirect('/shares')->with('success', 'Invoice updated');
-    }
+
+          }
 
 
     public function generatePDF($id)
@@ -213,7 +247,7 @@ class InvoiceController extends Controller
 
         $invoice=invoice::findOrFail($id);
 
-        $invoicechildd=invoicechild::where('invoice_no',$invoice->id)->get();
+        $invoicechildd=invoicechild::where('invoice_no',$invoice->id)->orderBy('service_date','asc')->get();
 
         $customer=Customer::find($invoice->customer);
 
@@ -240,12 +274,6 @@ class InvoiceController extends Controller
 
 
         $pdf = PDF::loadView('invoicetemplate', compact('invoice','invoicechildd','customer', 'hoursAsDecimal'));
-
-
-
-
-
-
         return $pdf->stream($invoice->invoice_number.'-invoice.pdf');
 
 //        $output = $pdf->output();
@@ -255,5 +283,18 @@ class InvoiceController extends Controller
 //            'Content-Disposition' =>  'inline; filename="invoice.pdf"',
 //        ]);
 
+    }
+
+    public function destroy($id)
+    {
+
+        $invoice = 'DELETE invoices,invoicechildren FROM invoices
+          INNER JOIN invoicechildren ON invoicechildren.invoice_no = invoices.id
+          WHERE invoices.id = ?';
+
+
+        DB::delete($invoice,  array($id));
+
+        return redirect('view/pending/invoice');
     }
 }

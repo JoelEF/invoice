@@ -88,7 +88,7 @@
                                                 <div class="form-group row">
                                                     <label for="c_btw" class="col-sm-3 text-center control-label col-form-label">BTWNummer</label>
                                                     <div class="col-sm-6">
-                                                        <input type="number" class="form-control" id="btw" name="btw" value="0">
+                                                        <input type="text" class="form-control" id="btw" name="btw" value="0">
                                                     </div>
                                                 </div>
 

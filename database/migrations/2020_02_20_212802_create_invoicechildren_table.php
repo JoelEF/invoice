@@ -16,7 +16,8 @@ class CreateInvoicechildrenTable extends Migration
 
         Schema::create('invoicechildren', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('invoice_no');
+            $table->integer('invoice_no')->unsigned();
+            $table->foreign('invoice_no')->references('id')->on('invoice');
             $table->string('service_date');
             $table->string('place_of_work');
             $table->string('start_time');
